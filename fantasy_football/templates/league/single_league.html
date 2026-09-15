@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}League: {{ ff_league.name }}{% endblock %}
+
+{% block app_additional_head %}
+<style>
+    .card {
+       font-size: small;
+    }
+    .league-name {
+        font-size: medium;
+        font-weight: bold;
+        width: 30em;
+        white-space: nowrap;
+    }
+    .league-points {
+        font-size: medium;
+        font-weight: bold;
+        width: 10em;
+        font-family: 'Courier New', Courier, monospace;
+        text-align: right;
+        padding-right: 30px;
+        padding-left: 15px;
+        white-space: nowrap;
+    }
+    span.league-points {
+        text-align: left;
+        font-size: large;
+    }
+    .team-name {
+        font-weight: medium;
+        width: 30em;
+        white-space: nowrap;
+    }
+    .team-points {
+        font-weight: medium;
+        width: 30em;
+        font-family: 'Courier New', Courier, monospace;
+        text-align: center;
+        padding-right: 15px;
+    }
+    .winner-selection {
+        
+    }
+    .loser-selection {
+        
+    }
+    .player-results {
+        margin: 5px;
+        padding: 0px;
+        width: 250px;
+    }
+    .ff-league-results {
+        padding: 5px;
+    }
+    .player-name {
+        font-weight: bold;
+    }
+    .player-score {
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .player-header {
+        text-align: center;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .scoreboard {
+        background-color: beige;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" aria-expanded="true" aria-controls="#scoreboard-cards #scoreboard-table">Switch Views</button>
+  <div class="container collapse multi-collapse show" id="scoreboard-table">
+    <table class="scoreboard">
+        <thead>
+            <th></th>
+            <th></th>
+            {% for sports_league in sports_leagues %}
+                {% if sports_league.active %}
+                    <th colspan="6">{{ sports_league.name }}</th>
+                {% endif %}
+            {% endfor %}
+        </thead>
+        <tbody>
+        {% for player, player_score in players_with_scores %}
+            <tr>
+                <td class="player-header player-name"><span>{{ player.name }}</span></td>
+                <td class="player-header player-score"><span>{{ player_score }}</span></td>
+                {% for selected_player, player_selections in player_league_selections %}
+                    {% if selected_player == player %}
+                        {% for sports_league, selection in player_selections %}
+                        <td class="winner-selection team-name"><span>{{ selection.winner.name }}</span></td>
+                        <td class="winner-selection team-points"><span>(&#8679;{{ selection.winner_standing.points }})</span></td>
+                        <td class="loser-selection team-name"><span>{{ selection.loser.name }}</span></td>
+                        <td class="loser-selection team-points"><span>(&#8681;{{ selection.loser_standing.points }})</span></td>
+                        <td class="league-points"><span>{{ selection.total_points }}</span></td>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </div>
+  <div class="collapse multi-collapse" id="scoreboard-cards">
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target=".player-body" aria-expanded="false" aria-controls="multiCollapseExample1 multiCollapseExample2">Expand all players...</button>
+    <div class="row ff-league-results">
+        {% for player, player_score in players_with_scores %}
+        <div class="card player-results">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <div class="row player-header">
+                        <div class="col-md-8"><span>{{ player.name }}</span></div>
+                        <div class="col-md-3"><span>{{ player_score }}</span></div>
+                    </div>
+                </h5>
+                <hr class="bg-danger border-2 border-top border-danger" />
+                <div class="player-body collapse">
+                    {% for selected_player, player_selections in player_league_selections %}
+                    {% if selected_player == player %}
+                        {% for sports_league, selection in player_selections %}
+                        <div class="row selection-header">
+                            <div class="col-md-8"><span class="league-name">{{ selection.league.name }}</span></div>
+                            <div class="col-md-3"><span class="league-points">{{ selection.total_points }}</span></div>
+                        </div>
+                        <div class="row winner-selection">
+                            <div class="col-md-8"><span class="team-name">{{ selection.winner.name }}</span></div>
+                            <div class="col-md-3"><span class="team-points">{{ selection.winner_standing.points }}</span></div>
+                        </div>
+                        <div class="row loser-selection">
+                            <div class="col-md-8"><span class="team-name">{{ selection.loser.name }}</span></div>
+                            <div class="col-md-3"><span class="team-points">{{ selection.loser_standing.points }}</span></div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endblock %}
